@@ -13,4 +13,29 @@
         <maven.compiler.target>11</maven.compiler.target>
     </properties>
 
+    <repositories>
+        <repository>
+            <id>dcm4che</id>
+            <url>https://www.dcm4che.org/maven2</url>
+            <snapshots>
+                <enabled>true</enabled>
+            </snapshots>
+        </repository>
+    </repositories>
+
+    <dependencies>
+        <dependency>
+            <!-- Maybe we don't need all, but for now it's the best option -->
+            <groupId>com.nitayjoffe.thirdparty.org.j3d</groupId>
+            <artifactId>j3d-all</artifactId>
+            <version>1.1</version>
+        </dependency>
+
+        <dependency>
+            <groupId>dcm4che</groupId>
+            <artifactId>dcm4che-core</artifactId>
+            <version>2.0.29</version>
+        </dependency>
+    </dependencies>
+
 </project>
