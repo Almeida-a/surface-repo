@@ -1,2 +1,3 @@
-.stl
-.dcm
+src/main/resources/3Ddata/*.stl
+src/main/resources/3Ddata/*.obj
+src/main/resources/Dicom/*.dcm
