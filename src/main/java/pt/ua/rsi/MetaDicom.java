@@ -1,10 +1,7 @@
 package pt.ua.rsi;
 
 import jdk.jshell.spi.ExecutionControl.NotImplementedException;
-import org.dcm4che2.data.BasicDicomObject;
-import org.dcm4che2.data.DicomObject;
-import org.dcm4che2.data.Tag;
-import org.dcm4che2.data.VR;
+import org.dcm4che2.data.*;
 import org.dcm4che2.util.UIDUtils;
 
 import java.io.File;
@@ -28,6 +25,11 @@ public class MetaDicom {
     public DicomObject generateMetadata() {
 
         DicomObject dcmObj = new BasicDicomObject();
+        DicomObject nestedDcmObj = new BasicDicomObject();
+
+        // Transfer Syntax
+        dcmObj.putString(Tag.TransferSyntaxUID, VR.UI, UID.ExplicitVRLittleEndian);
+
         // Patient
         dcmObj.putString(Tag.PatientName, VR.PN, "Antonio");
         dcmObj.putString(Tag.PatientID, VR.LO, "12345");
@@ -50,10 +52,10 @@ public class MetaDicom {
         dcmObj.putString(Tag.Laterality, VR.CS, "R");
 
         // OSS Series
-        dcmObj.putSequence(Tag.ReferencedPerformedProcedureStepSequence); // Seq
+        dcmObj.putSequence(Tag.ReferencedPerformedProcedureStepSequence, 2); // Seq
         dcmObj.putString(Tag.ReferencedSOPClassUID, VR.UI, UIDUtils.createUID());
         dcmObj.putString(Tag.ReferencedSOPInstanceUID, VR.UI, UIDUtils.createUID());
-        dcmObj.putSequence(Tag.ReferencedSurfaceSequence); // Seq
+        dcmObj.putSequence(Tag.ReferencedSurfaceSequence, 2); // Seq
         dcmObj.putString(Tag.ReferencedSOPClassUID, VR.UI, UIDUtils.createUID());
         dcmObj.putString(Tag.ReferencedSOPInstanceUID, VR.UI, UIDUtils.createUID());
 
@@ -68,13 +70,14 @@ public class MetaDicom {
         dcmObj.putDate(Tag.AcquisitionDateTime, VR.DT, Date.from(Instant.now()));
         dcmObj.putString(Tag.AcquisitionNumber, VR.IS, "1");
         dcmObj.putString(Tag.InstanceNumber, VR.IS, "41");
-        dcmObj.putSequence(new int[]{0x80, 0x1});  // Tag (0080, 0001)
+        dcmObj.putSequence(0x0080_0001, 0);
         // empty
-        dcmObj.putSequence(new int[] {0x80, 0x2});  // Tag (0080, 0002)
-        // empty (is it allowed?)
-        dcmObj.putSequence(new int[] {0x80, 0x3});  // Tag (0080, 0003)
-        // empty (is it allowed?)
-        dcmObj.putDouble(new int[] {0x80, 0x4}, VR.FD, 123);  // Tag (0080, 0004)
+        dcmObj.putSequence(0x0080_0002, 0);  // Tag (0080, 0002)
+        // empty TODO check is it allowed?
+        dcmObj.putSequence(0x0080_0003, 1);  // Tag (0080, 0003)
+        nestedDcmObj.putDouble(0x0080_0004, VR.FD, 123);
+        dcmObj.putNestedDicomObject(0x0080_0003, nestedDcmObj);
+        nestedDcmObj.clear();
 
         return dcmObj;
     }

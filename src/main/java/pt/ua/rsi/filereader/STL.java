@@ -11,22 +11,29 @@ import pt.ua.rsi.datastructs.PointCloudObject;
 import java.io.File;
 import java.io.IOException;
 
+import static pt.ua.rsi.Utils.doublesToFloat;
+
 public class STL implements Format3D {
 
     // Singleton class
     private static STL instance;
 
+    /**
+     * filepath: path to the .stl file
+     * */
     public DicomObject parseDicom(String filePath) throws IOException {
 
         // Dicom object
         DicomObject dicomObject = new BasicDicomObject();
+        DicomObject nestedDcmObj = new BasicDicomObject();
+        DicomObject nested2DcmObj = new BasicDicomObject();
         // File Reader object
         STLFileReader stlFileReader = new STLFileReader(
                 new File(filePath)
         );
 
         dicomObject.putInt(Tag.NumberOfSurfaces, VR.UL, stlFileReader.getNumOfFacets()[0]);
-        dicomObject.putSequence(Tag.SurfaceSequence);
+        dicomObject.putSequence(Tag.SurfaceSequence, stlFileReader.getNumOfFacets()[0]);
 
         // Add placeholders for facets data
         double [] normal = new double[3];
@@ -39,37 +46,43 @@ public class STL implements Format3D {
                 break;
             }
             // Hardcoded color data, we are not extracting it from the file (maybe we will in the future)
-            dicomObject.putInt(Tag.RecommendedDisplayGrayscaleValue, VR.US, 0x7FFF);
-            dicomObject.putInt(Tag.RecommendedDisplayCIELabValue, VR.US, 0x7FFF);
-            dicomObject.putInt(Tag.SurfaceNumber, VR.UL, i);
-            dicomObject.putString(Tag.SurfaceProcessing, VR.CS, "YES");
-            dicomObject.putFloat(Tag.RecommendedPresentationOpacity, VR.FL, (float) 0.9);
-            dicomObject.putString(Tag.RecommendedPresentationType, VR.CS, "SURFACE");
-            dicomObject.putString(Tag.FiniteVolume, VR.CS, "YES");
-            dicomObject.putString(Tag.Manifold, VR.CS, "UNKNOWN");
+            nestedDcmObj.putInt(Tag.RecommendedDisplayGrayscaleValue, VR.US, 0x7FFF);
+            nestedDcmObj.putInt(Tag.RecommendedDisplayCIELabValue, VR.US, 0x7FFF);
+            nestedDcmObj.putInt(Tag.SurfaceNumber, VR.UL, i);
+            nestedDcmObj.putString(Tag.SurfaceProcessing, VR.CS, "NO");
+            nestedDcmObj.putFloat(Tag.RecommendedPresentationOpacity, VR.FL, (float) 0.9);
+            nestedDcmObj.putString(Tag.RecommendedPresentationType, VR.CS, "SURFACE");
+            nestedDcmObj.putString(Tag.FiniteVolume, VR.CS, "YES");
+            nestedDcmObj.putString(Tag.Manifold, VR.CS, "UNKNOWN");
 
-            dicomObject.putSequence(Tag.SurfacePointsSequence);
-            dicomObject.putFloat(Tag.NumberOfSurfacePoints, VR.UL, (float) 3.0);
-            dicomObject.putFloat(Tag.PointCoordinatesData, VR.OF, (float) -1.0);
+            nestedDcmObj.putSequence(Tag.SurfacePointsSequence, 2);
+            nested2DcmObj.putInt(Tag.NumberOfSurfacePoints, VR.UL, 3);
+            nested2DcmObj.putFloat(Tag.PointCoordinatesData, VR.OF, (float) -1.0);
+            nestedDcmObj.putNestedDicomObject(Tag.SurfacePointsSequence, nested2DcmObj);
+            nested2DcmObj.clear();
 
-            dicomObject.putSequence(Tag.SurfacePointsNormalsSequence);
-            dicomObject.putInt(Tag.NumberOfVectors, VR.UL, 1);
-            dicomObject.putInt(Tag.VectorDimensionality, VR.US, 3);
-            dicomObject.putFloat(Tag.VectorAccuracy, VR.FL, (float) 0.9);
-            dicomObject.putString(Tag.VectorCoordinateData, VR.OF, String.format("{},{},{}",
-                    normal[0], normal[1], normal[2])
-            );
+            nestedDcmObj.putSequence(Tag.SurfacePointsNormalsSequence, 4);
+            nested2DcmObj.putInt(Tag.NumberOfVectors, VR.UL, 1);
+            nested2DcmObj.putInt(Tag.VectorDimensionality, VR.US, 3);
+            nested2DcmObj.putFloat(Tag.VectorAccuracy, VR.FL, (float) 0.9);
+            nested2DcmObj.putFloats(Tag.VectorCoordinateData, VR.OF, doublesToFloat(normal.clone()));
+            nestedDcmObj.putNestedDicomObject(Tag.SurfacePointsNormalsSequence, nested2DcmObj);
+            nested2DcmObj.clear();
 
-            dicomObject.putSequence(Tag.SurfaceMeshPrimitivesSequence);
-            dicomObject.putSequence(Tag.TriangleStripSequence); // empty
-            dicomObject.putSequence(Tag.TriangleFanSequence); // empty
-            dicomObject.putSequence(Tag.LineSequence); // empty
-            dicomObject.putSequence(Tag.FacetSequence); // empty
-            dicomObject.putString(new int[]{0x66,0x41}, VR.LO, "");
-            dicomObject.putString(new int[]{0x66,0x42}, VR.LO, "");
-            dicomObject.putString(new int[]{0x66,0x43}, VR.LO, String.format("{}", (Object) vertexes));
+            nestedDcmObj.putSequence(Tag.SurfaceMeshPrimitivesSequence, 0); // empty
+            nestedDcmObj.putSequence(Tag.TriangleStripSequence, 0); // empty
+            nestedDcmObj.putSequence(Tag.TriangleFanSequence, 0); // empty
+            nestedDcmObj.putSequence(Tag.LineSequence, 0); // empty
+            nestedDcmObj.putSequence(Tag.FacetSequence, 3);
+            nestedDcmObj.putString(0x0066_0041, VR.LO, "");
+            nestedDcmObj.putString(0x0066_0042, VR.LO, "");
+            nestedDcmObj.putString(0x0066_0043, VR.LO, String.format("{}", (Object) vertexes));
 
-            dicomObject.putSequence(Tag.SurfaceProcessingAlgorithmIdentificationSequence); // empty
+            nestedDcmObj.putSequence(Tag.SurfaceProcessingAlgorithmIdentificationSequence, 0); // empty
+
+            // Add sequence item to main object
+            dicomObject.putNestedDicomObject(Tag.SurfaceSequence, nestedDcmObj);
+            nestedDcmObj.clear(); // clear item to hold next facet's data
         }
 
         stlFileReader.close();
