@@ -1,15 +1,16 @@
 package pt.ua.rsi;
 
 
-import org.dcm4che2.data.*;
+import org.dcm4che2.data.DicomElement;
+import org.dcm4che2.data.DicomObject;
 import org.dcm4che2.io.DicomInputStream;
 import org.dcm4che2.io.DicomOutputStream;
 import pt.ua.rsi.filereader.STL;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.*;
-import java.util.regex.Pattern;
+import java.util.ArrayList;
+import java.util.Iterator;
 
 public class Main {
 
@@ -49,20 +50,16 @@ public class Main {
         // Create DICOM object with header data / metadata
         DicomObject dcmObj = meta.generateMetadata();
 
-        // Extract Surface Mesh
-        DicomObject dataObj = stl.parseDicom(files.get(0));
-        // Add scan data alongside header data
-        Iterator<DicomElement> iterator = dataObj.iterator();  // FIXME surface sequence data is lost, somehow
-        while (iterator.hasNext()) {
-            dcmObj.add(iterator.next());
-        }
+        // Extract Surface Mesh into dcmObj
+        stl.parseDicom(dcmObj, files.get(0));
 
         // Set up file and write contents
         baseDir = "src/main/resources/Dicom/";
         File meshFile = new File(baseDir + "mesh.dcm");
         DicomOutputStream outputStream = new DicomOutputStream(meshFile);
-        // FIXME this doesn't write the content to the requested file
         outputStream.writeDicomFile(dcmObj);
+
+//        if(dcmObj)
 
     }
 
@@ -77,32 +74,18 @@ public class Main {
         dicomFiles.add(baseDir + "mesh.dcm");
 
         DicomObject dcmObj;
-        DicomInputStream din = null;
+        DicomInputStream din;
         din = new DicomInputStream(
                 new File(dicomFiles.get(2))
         );
         dcmObj = din.readDicomObject();
 
         Iterator<DicomElement> dicomElementIterator = dcmObj.iterator();
-        SpecificCharacterSet cs = new SpecificCharacterSet("UTF-8");
         DicomElement element;
-
-        // Values for holding each dicom object attribute
-        String value;
-        int tag;
-        VR vr;
-        boolean bigEndian;
 
         while (dicomElementIterator.hasNext()) {
 
             element = dicomElementIterator.next();
-
-            value = element.getValueAsString(cs, 0);
-            tag = element.tag();
-            vr = element.vr();
-            bigEndian = element.bigEndian();
-
-            System.out.println("Placeholder code.");
 
         }
         din.close();

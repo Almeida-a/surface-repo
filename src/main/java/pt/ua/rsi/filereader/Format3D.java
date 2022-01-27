@@ -12,6 +12,6 @@ public interface Format3D {
 
     PointCloudObject readFilePointCloud(String filePath);
 
-    DicomObject parseDicom(String filePath) throws IOException;
+    DicomObject parseDicom(DicomObject dicomObject, String filePath) throws IOException;
 
 }

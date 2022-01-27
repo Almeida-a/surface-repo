@@ -1,12 +1,10 @@
 package pt.ua.rsi;
 
-import jdk.jshell.spi.ExecutionControl.NotImplementedException;
 import org.dcm4che2.data.*;
 import org.dcm4che2.util.UIDUtils;
 
 import java.io.File;
 import java.time.Instant;
-import java.time.temporal.TemporalAccessor;
 import java.util.Date;
 
 public class MetaDicom {
