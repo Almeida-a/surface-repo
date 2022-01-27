@@ -1,9 +1,6 @@
 package pt.ua.rsi.filereader;
 
-import org.dcm4che2.data.BasicDicomObject;
-import org.dcm4che2.data.DicomObject;
-import org.dcm4che2.data.Tag;
-import org.dcm4che2.data.VR;
+import org.dcm4che2.data.*;
 import org.j3d.loaders.stl.STLFileReader;
 import pt.ua.rsi.datastructs.MeshObject;
 import pt.ua.rsi.datastructs.PointCloudObject;
@@ -26,7 +23,7 @@ public class STL implements Format3D {
         // Dicom object
         DicomObject dicomObject = new BasicDicomObject();
         DicomObject nestedDcmObj = new BasicDicomObject();
-        DicomObject nested2DcmObj = new BasicDicomObject();
+        BasicDicomObject nested2DcmObj = new BasicDicomObject();
         // File Reader object
         STLFileReader stlFileReader = new STLFileReader(
                 new File(filePath)
@@ -34,6 +31,7 @@ public class STL implements Format3D {
 
         dicomObject.putInt(Tag.NumberOfSurfaces, VR.UL, stlFileReader.getNumOfFacets()[0]);
         dicomObject.putSequence(Tag.SurfaceSequence, stlFileReader.getNumOfFacets()[0]);
+        // EXAMPLE on how to add sequences here: https://github.com/bioinformatics-ua/dicoogle/blob/9f3d000f834e6905d9323897d04459daa4b94785/dicoogle/src/main/java/pt/ua/dicoogle/server/queryretrieve/DcmSnd.java#L623
 
         // Add placeholders for facets data
         double [] normal = new double[3];
@@ -59,7 +57,7 @@ public class STL implements Format3D {
             nested2DcmObj.putInt(Tag.NumberOfSurfacePoints, VR.UL, 3);
             nested2DcmObj.putFloat(Tag.PointCoordinatesData, VR.OF, (float) -1.0);
             nestedDcmObj.putNestedDicomObject(Tag.SurfacePointsSequence, nested2DcmObj);
-            nested2DcmObj.clear();
+            nested2DcmObj = new BasicDicomObject();
 
             nestedDcmObj.putSequence(Tag.SurfacePointsNormalsSequence, 4);
             nested2DcmObj.putInt(Tag.NumberOfVectors, VR.UL, 1);
@@ -67,22 +65,25 @@ public class STL implements Format3D {
             nested2DcmObj.putFloat(Tag.VectorAccuracy, VR.FL, (float) 0.9);
             nested2DcmObj.putFloats(Tag.VectorCoordinateData, VR.OF, doublesToFloat(normal.clone()));
             nestedDcmObj.putNestedDicomObject(Tag.SurfacePointsNormalsSequence, nested2DcmObj);
-            nested2DcmObj.clear();
+            nested2DcmObj = new BasicDicomObject();
 
             nestedDcmObj.putSequence(Tag.SurfaceMeshPrimitivesSequence, 0); // empty
             nestedDcmObj.putSequence(Tag.TriangleStripSequence, 0); // empty
             nestedDcmObj.putSequence(Tag.TriangleFanSequence, 0); // empty
             nestedDcmObj.putSequence(Tag.LineSequence, 0); // empty
-            nestedDcmObj.putSequence(Tag.FacetSequence, 3);
-            nestedDcmObj.putString(0x0066_0041, VR.LO, "");
-            nestedDcmObj.putString(0x0066_0042, VR.LO, "");
-            nestedDcmObj.putString(0x0066_0043, VR.LO, String.format("{}", (Object) vertexes));
+            nestedDcmObj.putSequence(Tag.FacetSequence, 1);
+
+            nested2DcmObj.putString(0x0066_0041, VR.LO, "");
+            nested2DcmObj.putString(0x0066_0042, VR.LO, "");
+            nested2DcmObj.putString(0x0066_0043, VR.LO, String.format("{}", (Object) vertexes));
+            nestedDcmObj.putNestedDicomObject(Tag.FacetSequence, nested2DcmObj.getRoot());
+            nested2DcmObj = new BasicDicomObject();
 
             nestedDcmObj.putSequence(Tag.SurfaceProcessingAlgorithmIdentificationSequence, 0); // empty
 
             // Add sequence item to main object
             dicomObject.putNestedDicomObject(Tag.SurfaceSequence, nestedDcmObj);
-            nestedDcmObj.clear(); // clear item to hold next facet's data
+            nestedDcmObj = new BasicDicomObject(); // clear item to hold next facet's data
         }
 
         stlFileReader.close();
