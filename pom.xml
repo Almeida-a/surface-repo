@@ -11,6 +11,7 @@
     <properties>
         <maven.compiler.source>11</maven.compiler.source>
         <maven.compiler.target>11</maven.compiler.target>
+        <slf4j.version>1.7.35</slf4j.version>
     </properties>
 
     <repositories>
@@ -35,6 +36,30 @@
             <groupId>dcm4che</groupId>
             <artifactId>dcm4che-core</artifactId>
             <version>2.0.29</version>
+        </dependency>
+
+        <!-- https://mvnrepository.com/artifact/org.jogamp.jogl/jogl-all-main -->
+        <dependency>
+            <groupId>org.jogamp.jogl</groupId>
+            <artifactId>jogl-all-main</artifactId>
+            <version>2.3.2</version>
+        </dependency>
+        <!-- From: -->
+        <!-- https://stackoverflow.com/questions/7576691/java-lang-noclassdeffounderror-com-jogamp-common-type-writecloneable-jogl-2-in#22529891 -->
+        <dependency>
+            <groupId>org.jogamp.gluegen</groupId>
+            <artifactId>gluegen-rt-main</artifactId>
+            <version>2.3.2</version>
+        </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+            <version>${slf4j.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-simple</artifactId>
+            <version>${slf4j.version}</version>
         </dependency>
     </dependencies>
 
