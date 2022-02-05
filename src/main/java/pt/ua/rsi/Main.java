@@ -16,8 +16,8 @@ public class Main {
 
     public static void main(String[] args) throws IOException {
 
-        writeDicomMeshFile();
-//        readDicomFiles();
+//        writeDicomMeshFile();
+        readDicomFiles();
     }
 
     private static void read3DFiles() throws IOException {
@@ -72,11 +72,12 @@ public class Main {
         dicomFiles.add(baseDir + "1.dcm");
         dicomFiles.add(baseDir + "2.dcm");
         dicomFiles.add(baseDir + "mesh.dcm");
+        dicomFiles.add(baseDir + "mesh_originals/E05185_50kV_80uA_360d_0.8r_2a_2300ms_Random_Egg1__rec0002.dcm");
 
         DicomObject dcmObj;
         DicomInputStream din;
         din = new DicomInputStream(
-                new File(dicomFiles.get(2))
+                new File(dicomFiles.get(3))
         );
         dcmObj = din.readDicomObject();
 
