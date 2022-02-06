@@ -1,31 +1,29 @@
 package pt.ua.rsi.datastructs;
 
 public class Point {
-    float x;
-    float y;
-    float z;
+    double x;
+    double y;
+    double z;
 
-    public Point(float x, float y, float z) {
+    public Point(double x, double y, double z) {
         this.x = x;
         this.y = y;
         this.z = z;
     }
 
-    public float getX() {
+    public double getX() {
         return x;
     }
 
-    public float getY() {
+    public double getY() {
         return y;
     }
 
-    public float getZ() {
+    public double getZ() {
         return z;
     }
 
-    public float[] getRaw() {
-        return new float[]{x, y, z};
-    }
+
 
     @Override
     public boolean equals(Object o) {
@@ -42,10 +40,40 @@ public class Point {
 
     @Override
     public String toString() {
-        return "[ " +
+        return "[" +
                   x +
                 ", " + y +
                 ", " + z +
-                " ]";
+                "]";
+
+/*
+        StringBuilder n = new StringBuilder();
+
+        if(this.x % 1 ==0){
+            n.append((int)x + ".");
+        }else{
+            n.append(String.format("%.3f",x));
+        }
+        if(this.y % 1 ==0){
+            n.append((int)y+".");
+        }else{
+            n.append(String.format("%.3f",y));
+        }
+        if(this.z % 1 ==0){
+            n.append((int)z+".");
+        }else{
+            n.append(String.format("%.3f",z));
+        }
+*/
+        //n.append("\\");
+        //return n.toString();
+    }
+
+    public float[] getRaw(){
+        float[] arr =  new float[3];
+        arr[0] = (float)x;
+        arr[1] = (float)y;
+        arr[2] = (float)z;
+        return arr;
     }
 }

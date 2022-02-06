@@ -81,7 +81,6 @@ public class STLreader {
 
     public void indexingFacets(ArrayList<Point> uniquePoints, ArrayList<int[]> listOfVertixOfFacets) throws IOException{
         STLFileReader stlf = new STLFileReader(f);
-        listOfVertixOfFacets = new ArrayList<>();
         int m;
         int numOfObjects = stlf.getNumOfObjects();
         int[] numOfFacets = stlf.getNumOfFacets();
@@ -99,19 +98,22 @@ public class STLreader {
                 int[] index = new int[3];
                 //System.out.println("New Facet");
                 for (double[] row : verticesOfFacet1) {
-                    //  System.out.println(Arrays.toString(row));
+                    //System.out.println("row" + Arrays.toString(row));
                     for(int l = 0; l < uniquePoints.size(); l++) {
+                      //  System.out.println("Unique point "+l+ ": "+uniquePoints.get(l).toString());
                         if (row[0] == uniquePoints.get(l).getX() && row[1] == uniquePoints.get(l).getY() && row[2] == uniquePoints.get(l).getZ()) {
                             index[k] = l;
+                            //System.out.println("Index " );
                             break;
                         }
                     }
                     k++;
                 }
                 listOfVertixOfFacets.add(m, index);
+                //System.out.println("M: "+m);
+                //System.out.println("\tIndex List: "+Arrays.toString(index)+"\n");
             }
-            //System.out.println("M: "+m);
-            //System.out.println("\tIndex List: "+Arrays.toString(index)+"\n");
+
 
             //System.out.println(Arrays.toString(firstNormal));
 

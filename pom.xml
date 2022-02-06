@@ -9,8 +9,8 @@
     <version>1.0-SNAPSHOT</version>
 
     <properties>
-        <maven.compiler.source>11</maven.compiler.source>
-        <maven.compiler.target>11</maven.compiler.target>
+        <maven.compiler.source>8</maven.compiler.source>
+        <maven.compiler.target>8</maven.compiler.target>
         <slf4j.version>1.7.35</slf4j.version>
     </properties>
 
@@ -36,6 +36,12 @@
             <groupId>dcm4che</groupId>
             <artifactId>dcm4che-core</artifactId>
             <version>2.0.29</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.dcm4che</groupId>
+            <artifactId>dcm4che-core</artifactId>
+            <version>3.3.7</version>
         </dependency>
 
         <!-- https://mvnrepository.com/artifact/org.jogamp.jogl/jogl-all-main -->
