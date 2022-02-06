@@ -55,7 +55,7 @@ public class STLreader {
                 for (double[] row : verticesOfFacet) {
                     k++;
                     //sb.append(k + "º vertix : " + Arrays.toString(row)).append("\n");
-                    Point a = new Point(row[0],row[1],row[2]);
+                    Point a = new Point((float) row[0], (float) row[1], (float) row[2]);
                     Vector va = new Vector(row[0],row[1],row[2]);
                     numUniquePoints.add(a);
                     numVectorsByPoint.add(va);

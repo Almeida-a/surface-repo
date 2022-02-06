@@ -59,22 +59,26 @@ public class Mesh implements GLEventListener {
 
         // Iterate over dicom mesh primitives
         MeshObject.Facet primitive;
-        double[][] vertexes;
+        float[][] vertexes;
         float[] color;
-        for (MeshDcmIterator primitiveCursor = new MeshDcmIterator(stream); primitiveCursor.hasNext();) {
-            primitive = primitiveCursor.next();
+        try {
+            for (MeshDcmIterator primitiveCursor = new MeshDcmIterator(stream); primitiveCursor.hasNext();) {
+                primitive = primitiveCursor.next();
 
-            // Random color
-            color = randomColor();
-            // Vertexes of the triangle primitive
-            vertexes = primitive.getVertexes();
+                // Random color
+                color = randomColor();
+                // Vertexes of the triangle primitive
+                vertexes = primitive.getVertexes();
 
-            // Register data
-            gl.glColor3f(color[0], color[1], color[2]);
-            gl.glVertex3f((float) vertexes[0][0], (float) vertexes[1][0], (float) vertexes[2][0]);
-            gl.glVertex3f((float) vertexes[0][1], (float) vertexes[1][1], (float) vertexes[2][1]);
-            gl.glVertex3f((float) vertexes[0][2], (float) vertexes[1][2], (float) vertexes[2][2]);
+                // Register data
+                gl.glColor3f(color[0], color[1], color[2]);
+                gl.glVertex3f(vertexes[0][0], vertexes[1][0], vertexes[2][0]);
+                gl.glVertex3f(vertexes[0][1], vertexes[1][1], vertexes[2][1]);
+                gl.glVertex3f(vertexes[0][2], vertexes[1][2], vertexes[2][2]);
 
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
         }
 
         // Done drawing the surface

@@ -32,9 +32,9 @@ public class MeshObject {
         // Surface's normal vector 3D coordinates
         private final double[] normal;
         // Face vertexes 3D coordinates
-        private final double[][] vertexes;
+        private final float[][] vertexes;
 
-        public Facet(double[] normal, double[][] vertexes) {
+        public Facet(double[] normal, float[][] vertexes) {
             this.normal = normal;
             this.vertexes = vertexes;
         }
@@ -43,7 +43,7 @@ public class MeshObject {
             return normal;
         }
 
-        public double[][] getVertexes() {
+        public float[][] getVertexes() {
             return vertexes;
         }
     }

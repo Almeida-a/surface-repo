@@ -1,26 +1,30 @@
 package pt.ua.rsi.datastructs;
 
 public class Point {
-    double x;
-    double y;
-    double z;
+    float x;
+    float y;
+    float z;
 
-    public Point(double x, double y, double z) {
+    public Point(float x, float y, float z) {
         this.x = x;
         this.y = y;
         this.z = z;
     }
 
-    public double getX() {
+    public float getX() {
         return x;
     }
 
-    public double getY() {
+    public float getY() {
         return y;
     }
 
-    public double getZ() {
+    public float getZ() {
         return z;
+    }
+
+    public float[] getRaw() {
+        return new float[]{x, y, z};
     }
 
     @Override
