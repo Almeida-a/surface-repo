@@ -72,7 +72,7 @@ public class Main {
         files.add(baseDir + "wolf_fenrir.stl");
         files.add(baseDir + "hellboy.stl");
         files.add(baseDir + "3DBenchy_Single_Window.stl");*/
-        String f = "/Users/joaorodrigues/Universidade/RSI/resources/Cube_3d_printing_sample.stl";
+        String f = "src/main/resources/3Ddata/Cube_3d_printing_sample.stl";
         // Singletons
         MetaDicom meta = MetaDicom.getInstance();
         STL stl = STL.getInstance();
@@ -86,7 +86,7 @@ public class Main {
         //stl.parseDicom(dcmObj, f);
 
         // Set up file and write contents
-        String baseDir = "/Users/joaorodrigues/Universidade/RSI/resources/";
+        String baseDir = "src/main/resources/Dicom/";
         File meshFile = new File(baseDir + "mesh.dcm");
         DicomOutputStream outputStream = new DicomOutputStream(meshFile);
         System.out.println(dcmObj);

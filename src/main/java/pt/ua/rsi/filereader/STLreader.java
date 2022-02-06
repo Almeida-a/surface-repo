@@ -13,7 +13,7 @@ import java.util.HashSet;
 
 public class STLreader {
 
-    File f = new File("/Users/joaorodrigues/Universidade/RSI/resources/Cube_3d_printing_sample.stl");
+    File f = new File("src/main/resources/3Ddata/Cube_3d_printing_sample.stl");
     //STLFileReader stlf ;//= new STLFileReader(f)
 
     public int getNumberOfObjects(File f) throws IOException {
