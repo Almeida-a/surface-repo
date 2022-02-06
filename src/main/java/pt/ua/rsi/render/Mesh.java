@@ -38,7 +38,7 @@ public class Mesh implements GLEventListener {
     }
 
     @Override
-    public void display(GLAutoDrawable drawable) { // TODO
+    public void display(GLAutoDrawable drawable) {
 
         // Initialize gl stuff
         final GL2 gl = drawable.getGL().getGL2();
@@ -57,12 +57,15 @@ public class Mesh implements GLEventListener {
         }
         assert stream != null: "Couldn't read file, but program continued!";
 
+        // Get which sequence?
+        int seqNumber = 0;
+
         // Iterate over dicom mesh primitives
         MeshObject.Facet primitive;
         float[][] vertexes;
         float[] color;
         try {
-            for (MeshDcmIterator primitiveCursor = new MeshDcmIterator(stream); primitiveCursor.hasNext();) {
+            for (MeshDcmIterator primitiveCursor = new MeshDcmIterator(stream, seqNumber); primitiveCursor.hasNext();) {
                 primitive = primitiveCursor.next();
 
                 // Random color

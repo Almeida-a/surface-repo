@@ -22,7 +22,7 @@ public class MeshDcmIterator implements Iterator<MeshObject.Facet> {
     private final ArrayList<Point> pointsList = new ArrayList<>();
     private final ArrayList<byte[]> primitiveList = new ArrayList<>();
 
-    public MeshDcmIterator(DicomInputStream stream) throws IOException {
+    public MeshDcmIterator(DicomInputStream stream, int surfaceID) throws IOException {
 
         indexer = 1;
 
@@ -40,38 +40,55 @@ public class MeshDcmIterator implements Iterator<MeshObject.Facet> {
             dicomElement = iterator.next();
             tag = dicomElement.tag();
 
-            if (tag == Tag.PointCoordinatesData) {
+            if (tag == Tag.SurfaceSequence) {
 
-                // Initialize the point list (by reading (0066, 0016))
-                data = dicomElement.getBytes();
+                // From the surface list, get only the one specified in the constructor parameter
+                Iterator<DicomElement> surfaceSqIterator = dicomElement.getDicomObject(surfaceID).iterator();
+                // Holds the sequence item
+                DicomElement surfSqItem;
+                // Holds the tag number
+                int surfSqTag;
 
-                assert data.length % 12 == 0: "This string should contain a multiple of " +
-                        "12 bytes (3 floats of 32 bit length)";
+                while (surfaceSqIterator.hasNext()) {
 
-                // Store coordinates of the point in bytes form (3 times 32-bit float)
-                ByteBuffer pointBytes;
-                // Store float value
-                float x, y, z;
+                    surfSqItem = surfaceSqIterator.next();
+                    surfSqTag = surfSqItem.tag();
 
-                for (int i = 0; i < data.length; i+=12) {
+                    if (surfSqTag == Tag.PointCoordinatesData) {
 
-                    // Thanks to http://stackoverflow.com/questions/13469681/ddg#13469763
-                    pointBytes = ByteBuffer.wrap(Arrays.copyOfRange(data, i, i+12)).order(bo);
+                        // Initialize the point list (by reading (0066, 0016))
+                        data = surfSqItem.getBytes();
 
-                    // Get point coordinates
-                    x = pointBytes.getFloat(1);
-                    y = pointBytes.getFloat(2);
-                    z = pointBytes.getFloat(3);
+                        assert data.length % 12 == 0: "This string should contain a multiple of " +
+                                "12 bytes (3 floats of 32 bit length)";
 
-                    // Insert in list
-                    pointsList.add(new Point(x, y, z));
+                        // Store coordinates of the point in bytes form (3 times 32-bit float)
+                        ByteBuffer pointBytes;
+                        // Store float value
+                        float x, y, z;
+
+                        for (int i = 0; i < data.length; i+=12) {
+
+                            // Thanks to http://stackoverflow.com/questions/13469681/ddg#13469763
+                            pointBytes = ByteBuffer.wrap(Arrays.copyOfRange(data, i, i+12)).order(bo);
+
+                            // Get point coordinates
+                            x = pointBytes.getFloat(1);
+                            y = pointBytes.getFloat(2);
+                            z = pointBytes.getFloat(3);
+
+                            // Insert in list
+                            pointsList.add(new Point(x, y, z));
+                        }
+
+                    } else if (surfSqTag == 0x0066_0040) {
+                        // Action carried out for each item (0066, 0040) of facet sequence (0066, 0034)
+
+                        // Get primitiveCount primitives list, from (0066, 0034)
+                        primitiveList.add(surfSqItem.getBytes());
+
+                    }
                 }
-
-            } else if (tag == 0x0066_0040) {
-                // Action carried out for each item (0066, 0040) of facet sequence (0066, 0034)
-
-                // Get primitiveCount primitives list, from (0066, 0034)
-                primitiveList.add(dicomElement.getBytes());
 
             }
         }
