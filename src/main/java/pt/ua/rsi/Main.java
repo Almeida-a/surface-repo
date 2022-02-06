@@ -91,6 +91,7 @@ public class Main {
         DicomOutputStream outputStream = new DicomOutputStream(meshFile);
         System.out.println(dcmObj);
         outputStream.writeDicomFile(dcmObj);
+        outputStream.close();
 
 
 //        if(dcmObj)
