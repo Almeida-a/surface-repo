@@ -102,7 +102,7 @@ public class STLreader {
                     for(int l = 0; l < uniquePoints.size(); l++) {
                       //  System.out.println("Unique point "+l+ ": "+uniquePoints.get(l).toString());
                         if (row[0] == uniquePoints.get(l).getX() && row[1] == uniquePoints.get(l).getY() && row[2] == uniquePoints.get(l).getZ()) {
-                            index[k] = l;
+                            index[k] = l+1;
                             //System.out.println("Index " );
                             break;
                         }

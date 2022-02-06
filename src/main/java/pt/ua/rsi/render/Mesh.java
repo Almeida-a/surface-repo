@@ -12,14 +12,20 @@ import javax.swing.*;
 import java.awt.*;
 import java.io.File;
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.Random;
 
 public class Mesh implements GLEventListener {
     // Based on the tutorials from https://www.tutorialspoint.com/jogl/jogl_3d_cube.htm
     public static DisplayMode dm, dm_old;
     private final GLU glu = new GLU();
     private float rquad = .0f;  // TODO figure out what this is used for
-
-    // ...
+//    private MeshDcmIterator primitiveCursor;
+//
+//    public Mesh() {
+//        primitiveCursor = new MeshDcmIterator(stream, seqNumber);
+//
+//    }
 
     @Override
     public void init(GLAutoDrawable drawable) {
@@ -48,10 +54,13 @@ public class Mesh implements GLEventListener {
         // Start drawing the surface (IMPORTANT: assumes primitives are triangles)
         gl.glBegin(GL2.GL_TRIANGLES);
 
+        // Rotate The Cube On X, Y & Z
+        gl.glRotatef(rquad, 1.0f, 1.0f, 1.0f);
+
         // Initialize dicom stream
         DicomInputStream stream = null;
         try {
-            stream = new DicomInputStream(new File(""));
+            stream = new DicomInputStream(new File("src/main/resources/Dicom/mesh.dcm"));
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -63,15 +72,15 @@ public class Mesh implements GLEventListener {
         // Iterate over dicom mesh primitives
         MeshObject.Facet primitive;
         float[][] vertexes;
-        float[] color;
         try {
-            for (MeshDcmIterator primitiveCursor = new MeshDcmIterator(stream, seqNumber); primitiveCursor.hasNext();) {
+            MeshDcmIterator primitiveCursor = new MeshDcmIterator(stream, seqNumber);
+            while ( primitiveCursor.hasNext()) {
                 primitive = primitiveCursor.next();
 
-                // Random color
-                color = randomColor();
                 // Vertexes of the triangle primitive
                 vertexes = primitive.getVertexes();
+
+                float[] color = randomColor(vertexes);
 
                 // Register data
                 gl.glColor3f(color[0], color[1], color[2]);
@@ -88,15 +97,15 @@ public class Mesh implements GLEventListener {
         gl.glEnd();
         gl.glFlush();
 
-        rquad += 0f;
+        rquad -= 0.15f;
 
     }
 
-    private static float[] randomColor() {
+    private static float[] randomColor(float[][] seed) {
 
         float[] randomColor = new float[3];
         for (int i = 0; i < randomColor.length; i++) {
-            randomColor[i] = (float) Math.random();
+            randomColor[i] = (float) new Random(Arrays.hashCode(seed[i])).nextDouble();
         }
 
         return randomColor;

@@ -8,90 +8,35 @@ import pt.ua.rsi.datastructs.MeshObject;
 import pt.ua.rsi.datastructs.Point;
 
 import java.io.IOException;
-import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Iterator;
 
 public class MeshDcmIterator implements Iterator<MeshObject.Facet> {
     // Based on this tutorial: https://www.geeksforgeeks.org/java-implementing-iterator-and-iterable-interface/
 
     private int indexer;
-    private final ByteOrder bo;
     private final ArrayList<Point> pointsList = new ArrayList<>();
-    private final ArrayList<byte[]> primitiveList = new ArrayList<>();
+    private final DicomElement primitiveList;
 
     public MeshDcmIterator(DicomInputStream stream, int surfaceID) throws IOException {
 
-        indexer = 1;
+        indexer = 0;
 
         DicomObject dcmObj = stream.readDicomObject();
 
-        // Get byte order
-        bo = dcmObj.bigEndian() ? ByteOrder.BIG_ENDIAN : ByteOrder.LITTLE_ENDIAN;
+        DicomObject surface = dcmObj.get(Tag.SurfaceSequence).getDicomObject(surfaceID);
 
-        Iterator<DicomElement> iterator = dcmObj.iterator();
-        DicomElement dicomElement;
-        int tag;
-        byte[] data;
-
-        while (iterator.hasNext()) {
-            dicomElement = iterator.next();
-            tag = dicomElement.tag();
-
-            if (tag == Tag.SurfaceSequence) {
-
-                // From the surface list, get only the one specified in the constructor parameter
-                Iterator<DicomElement> surfaceSqIterator = dicomElement.getDicomObject(surfaceID).iterator();
-                // Holds the sequence item
-                DicomElement surfSqItem;
-                // Holds the tag number
-                int surfSqTag;
-
-                while (surfaceSqIterator.hasNext()) {
-
-                    surfSqItem = surfaceSqIterator.next();
-                    surfSqTag = surfSqItem.tag();
-
-                    if (surfSqTag == Tag.PointCoordinatesData) {
-
-                        // Initialize the point list (by reading (0066, 0016))
-                        data = surfSqItem.getBytes();
-
-                        assert data.length % 12 == 0: "This string should contain a multiple of " +
-                                "12 bytes (3 floats of 32 bit length)";
-
-                        // Store coordinates of the point in bytes form (3 times 32-bit float)
-                        ByteBuffer pointBytes;
-                        // Store float value
-                        float x, y, z;
-
-                        for (int i = 0; i < data.length; i+=12) {
-
-                            // Thanks to http://stackoverflow.com/questions/13469681/ddg#13469763
-                            pointBytes = ByteBuffer.wrap(Arrays.copyOfRange(data, i, i+12)).order(bo);
-
-                            // Get point coordinates
-                            x = pointBytes.getFloat(1);
-                            y = pointBytes.getFloat(2);
-                            z = pointBytes.getFloat(3);
-
-                            // Insert in list
-                            pointsList.add(new Point(x, y, z));
-                        }
-
-                    } else if (surfSqTag == 0x0066_0040) {
-                        // Action carried out for each item (0066, 0040) of facet sequence (0066, 0034)
-
-                        // Get primitiveCount primitives list, from (0066, 0034)
-                        primitiveList.add(surfSqItem.getBytes());
-
-                    }
-                }
-
-            }
+        // Get points
+        DicomElement pointCoordinatesData = surface.get(Tag.SurfacePointsSequence).getDicomObject(0)
+                .get(Tag.PointCoordinatesData);
+        float[] data = pointCoordinatesData.getFloats(true);
+        for (int i = 0; i < data.length; i+=3) {
+            pointsList.add(new Point(data[i], data[i+1], data[i+2]));
         }
+
+        // Get primitives
+        primitiveList = surface.get(Tag.SurfaceMeshPrimitivesSequence)
+                .getDicomObject(0).get(Tag.FacetSequence);
 
     }
 
@@ -99,21 +44,20 @@ public class MeshDcmIterator implements Iterator<MeshObject.Facet> {
     public boolean hasNext() {
         // Check if there are more primitives
         // Nuance: since indexer starts counting from 1, its last valid value is list.size and not list.size - 1
-        return indexer <= primitiveList.size();
+        return indexer < primitiveList.countItems();
     }
 
     @Override  // Return current data and update pointer
     public MeshObject.Facet next() {
 
         // Get data from primitiveList
-        byte[] data = primitiveList.get(indexer);
-        ByteBuffer byteBuffer = ByteBuffer.wrap(data).order(bo);
+        int[] points = primitiveList.getDicomObject(indexer).get(0x0066_0040).getInts(true);
 
         // Translate data into coordinates array
         float[][] vertexes = new float[3][3];
         for (int i = 0; i < 3; i++) {
             // Parse each word (point indices) in data to point object
-            vertexes[i] = pointsList.get(byteBuffer.getInt(i)).getRaw();
+            vertexes[i] = pointsList.get(points[i]-1).getRaw();
         }
 
         MeshObject.Facet facet = new MeshObject.Facet(null, vertexes);
