@@ -18,7 +18,7 @@ import java.util.Random;
 
 public class Mesh implements GLEventListener {
     // Based on the tutorials from https://www.tutorialspoint.com/jogl/jogl_3d_cube.htm
-    public static DisplayMode dm, dm_old;
+    public static DisplayMode dm;
     private final GLU glu = new GLU();
     private float rquad = 0.0f;
     private final File meshDcm;

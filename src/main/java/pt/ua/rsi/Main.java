@@ -8,7 +8,6 @@ import org.dcm4che2.io.DicomOutputStream;
 import pt.ua.rsi.datastructs.Point;
 import pt.ua.rsi.datastructs.Vector;
 import pt.ua.rsi.filereader.DicomValueInsert;
-import pt.ua.rsi.filereader.STL;
 import pt.ua.rsi.filereader.STLreader;
 import pt.ua.rsi.render.Mesh;
 
@@ -18,11 +17,10 @@ import java.util.ArrayList;
 import java.util.Iterator;
 
 public class Main {
-    private static ArrayList<int[]> b = new ArrayList<>();
+    private static final ArrayList<int[]> b = new ArrayList<>();
     public static void main(String[] args) throws IOException {
 
-        String stlPath = args[0];//"Cube_3d_printing_sample.stl";//"src/main/resources/3Ddata/Cube_3d_printing_sample.stl";
-        String meshDcmPath = "mesh.dcm";//"src/main/resources/Dicom/mesh.dcm";
+        String stlPath = args[0];
 
         STLreader a = new STLreader(
                 new File(stlPath)
@@ -33,13 +31,13 @@ public class Main {
         a.getNumberOfUniquePoints(pointArray, vectorArray);
         a.indexingFacets(pointArray, b);
 
-        writeDicomMeshFile(pointArray,b);
+        File mesh = writeDicomMeshFile(pointArray,b);
 
-        Mesh.render(new File(meshDcmPath));
+        Mesh.render(mesh);
 
     }
 
-    private static void writeDicomMeshFile(ArrayList<Point> pointsList, ArrayList<int[]> indexVert) throws IOException {
+    private static File writeDicomMeshFile(ArrayList<Point> pointsList, ArrayList<int[]> indexVert) throws IOException {
 
         // Singletons
         MetaDicom meta = MetaDicom.getInstance();
@@ -56,6 +54,8 @@ public class Main {
         System.out.println(dcmObj);
         outputStream.writeDicomFile(dcmObj);
         outputStream.close();
+
+        return meshFile;
 
     }
 
