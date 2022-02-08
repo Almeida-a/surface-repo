@@ -1,10 +1,11 @@
-#Surface Repository for DICOM
+##Surface Repository for DICOM
 
-##Input 3D files supported
-* AC3D
-* C3D
-* DEM
-* 3DS
-* OBJ
-* STL
-* VTP
+### Usage
+Building from source - 
+`mvn install`
+
+Run - `java -jar SurfaceRepo-jar-w-dep.java path/to/stlFile.stl`
+
+Outputs:
+* _mesh.dcm_ file in the same directory as the jar file;
+* Viewer (reads data from _mesh.dcm_)
