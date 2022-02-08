@@ -18,6 +18,42 @@ public class MeshDcmIterator implements Iterator<MeshObject.Facet> {
     private final ArrayList<Point> pointsList = new ArrayList<>();
     private final DicomElement primitiveList;
 
+    /**
+     *
+     * Gets the points that define the lower and upper bound (min and max, respectively)
+     *  of the bounding box comprising the existing points.
+     * Additionally, it returns the mid-point between those points
+     *
+     * */
+    public Point[] minMidMax() {
+
+        double[] maxXYZ = new double[]{-Float.MAX_VALUE, -Float.MAX_VALUE, -Float.MAX_VALUE};
+        double[] minXYZ = new double[]{Float.MAX_VALUE, Float.MAX_VALUE, Float.MAX_VALUE};
+
+        // Get min coordinates
+        for (Point p : pointsList) {
+            if (p.getX() < minXYZ[0])
+                minXYZ[0] = p.getX();
+            else if (p.getX() > maxXYZ[0])
+                maxXYZ[0] = p.getX();
+
+            if (p.getY() < minXYZ[1])
+                minXYZ[1] = p.getY();
+            else if (p.getY() > maxXYZ[1])
+                maxXYZ[1] = p.getY();
+
+            if (p.getZ() < minXYZ[2])
+                minXYZ[2] = p.getZ();
+            else if (p.getZ() > maxXYZ[2])
+                maxXYZ[2] = p.getZ();
+        }
+
+        Point min = new Point(minXYZ);
+        Point max = new Point(maxXYZ);
+
+        return new Point[]{min, Point.getMidPoint(min, max), max};
+    }
+
     public MeshDcmIterator(DicomInputStream stream, int surfaceID) throws IOException {
 
         indexer = 0;

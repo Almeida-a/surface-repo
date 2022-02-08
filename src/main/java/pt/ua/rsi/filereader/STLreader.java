@@ -13,8 +13,11 @@ import java.util.HashSet;
 
 public class STLreader {
 
-    File f = new File("src/main/resources/3Ddata/Cube_3d_printing_sample.stl");
-    //STLFileReader stlf ;//= new STLFileReader(f)
+    File f;
+
+    public STLreader(File f) {
+         this.f = f;
+    }
 
     public int getNumberOfObjects(File f) throws IOException {
         STLFileReader stlf = new STLFileReader(f);
@@ -68,7 +71,7 @@ public class STLreader {
         for(Point x : numUniquePoints){
             uniquePoints.add(p,x);
             p++;
-            System.out.println("Point "+p+" :" +x.toString());
+            //System.out.println("Point "+p+" :" +x.toString());
         }
         int v = 0;
         for(Vector y : numVectorsByPoint){

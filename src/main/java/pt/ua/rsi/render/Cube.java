@@ -83,7 +83,7 @@ public class Cube implements GLEventListener {
         gl.glEnd(); // Done Drawing The Quad
         gl.glFlush();
 
-        rquad -= 0.15f;
+        rquad -= 1f;
     }
 
     @Override
@@ -98,7 +98,7 @@ public class Cube implements GLEventListener {
         gl.glMatrixMode( GL2.GL_PROJECTION );
         gl.glLoadIdentity();
 
-        glu.gluPerspective( 45.0f, h, 1.0, 20.0 );
+        glu.gluPerspective( 45.0f, h, 1.0, 40.0 );
         gl.glMatrixMode( GL2.GL_MODELVIEW );
         gl.glLoadIdentity();
     }
